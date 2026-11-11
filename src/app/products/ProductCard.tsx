@@ -10,7 +10,13 @@ import {
   type Product,
 } from "@/lib/products";
 
-export function ProductCard({ product }: { product: Product }) {
+type Props = {
+  product: Product;
+  // 카드 아래쪽에 덧붙일 내용 (예: 추천 이유, 가격 비교)
+  children?: React.ReactNode;
+};
+
+export function ProductCard({ product, children }: Props) {
   const done = product.status === "sold";
   const cover = product.images[0];
 
@@ -53,6 +59,7 @@ export function ProductCard({ product }: { product: Product }) {
           <p className="font-extrabold text-goguma">{formatPrice(product.price)}</p>
         </div>
         <p className="mt-2 truncate text-xs text-muted">{product.seller?.nickname ?? "알 수 없음"}</p>
+        {children}
       </div>
     </Link>
   );

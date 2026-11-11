@@ -9,6 +9,7 @@ import { formatPrice, timeAgo } from "@/lib/products";
 import { StatusBadge } from "../ProductCard";
 import { DeleteButton } from "./DeleteButton";
 import { ImageGallery } from "./ImageGallery";
+import { SimilarProducts, SimilarProductsSkeleton } from "./SimilarProducts";
 
 // 브라우저 탭 제목을 글 제목으로
 export async function generateMetadata({ params }: PageProps<"/products/[id]">): Promise<Metadata> {
@@ -42,51 +43,58 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[id]">, "para
   const edited = product.updated_at !== product.created_at;
 
   return (
-    <article className="mt-4 grid gap-8 md:grid-cols-2">
-      <ImageGallery images={product.images} title={product.title} category={product.category} />
+    <>
+      <article className="mt-4 grid gap-8 md:grid-cols-2">
+        <ImageGallery images={product.images} title={product.title} category={product.category} />
 
-      <div className="flex flex-col">
-        {/* 판매자 */}
-        <div className="flex items-center gap-3 border-b border-line pb-5">
-          <span className="grid size-11 place-items-center rounded-full bg-flesh text-lg font-bold text-[#1d1720]">
-            {product.seller?.nickname.slice(0, 1) ?? "?"}
-          </span>
-          <div>
-            <p className="font-bold">{product.seller?.nickname ?? "알 수 없음"}</p>
-            {isMine && <p className="text-xs font-semibold text-goguma">내가 쓴 글</p>}
+        <div className="flex flex-col">
+          {/* 판매자 */}
+          <div className="flex items-center gap-3 border-b border-line pb-5">
+            <span className="grid size-11 place-items-center rounded-full bg-flesh text-lg font-bold text-[#1d1720]">
+              {product.seller?.nickname.slice(0, 1) ?? "?"}
+            </span>
+            <div>
+              <p className="font-bold">{product.seller?.nickname ?? "알 수 없음"}</p>
+              {isMine && <p className="text-xs font-semibold text-goguma">내가 쓴 글</p>}
+            </div>
           </div>
+
+          <div className="py-6">
+            <div className="flex items-center gap-2">
+              <StatusBadge status={product.status} />
+              <h1 className="text-2xl font-extrabold tracking-tight">{product.title}</h1>
+            </div>
+            <p className="mt-2 text-sm text-muted">
+              {product.category} · {timeAgo(product.created_at)}
+              {edited && " · 수정됨"}
+            </p>
+            <p className="mt-4 text-3xl font-extrabold text-goguma">{formatPrice(product.price)}</p>
+
+            {/* whitespace-pre-wrap: 사용자가 친 줄바꿈을 그대로 보여줘요 */}
+            <p className="mt-6 whitespace-pre-wrap leading-relaxed">
+              {product.description || <span className="text-muted">설명이 없어요.</span>}
+            </p>
+          </div>
+
+          {isMine && (
+            <div className="mt-auto flex gap-3 border-t border-line pt-5">
+              <Link
+                href={`/products/${product.id}/edit`}
+                className="grid h-13 flex-1 place-items-center rounded-2xl bg-goguma font-bold text-on-goguma shadow-lg shadow-goguma/25 transition hover:-translate-y-0.5"
+              >
+                수정하기
+              </Link>
+              <DeleteButton id={product.id} />
+            </div>
+          )}
         </div>
+      </article>
 
-        <div className="py-6">
-          <div className="flex items-center gap-2">
-            <StatusBadge status={product.status} />
-            <h1 className="text-2xl font-extrabold tracking-tight">{product.title}</h1>
-          </div>
-          <p className="mt-2 text-sm text-muted">
-            {product.category} · {timeAgo(product.created_at)}
-            {edited && " · 수정됨"}
-          </p>
-          <p className="mt-4 text-3xl font-extrabold text-goguma">{formatPrice(product.price)}</p>
-
-          {/* whitespace-pre-wrap: 사용자가 친 줄바꿈을 그대로 보여줘요 */}
-          <p className="mt-6 whitespace-pre-wrap leading-relaxed">
-            {product.description || <span className="text-muted">설명이 없어요.</span>}
-          </p>
-        </div>
-
-        {isMine && (
-          <div className="mt-auto flex gap-3 border-t border-line pt-5">
-            <Link
-              href={`/products/${product.id}/edit`}
-              className="grid h-13 flex-1 place-items-center rounded-2xl bg-goguma font-bold text-on-goguma shadow-lg shadow-goguma/25 transition hover:-translate-y-0.5"
-            >
-              수정하기
-            </Link>
-            <DeleteButton id={product.id} />
-          </div>
-        )}
-      </div>
-    </article>
+      {/* 비슷한 물건 추천: 따로 DB를 읽으니까 Suspense 로 감싸서, 본문은 먼저 보여주고 추천은 뒤따라 나와요 */}
+      <Suspense fallback={<SimilarProductsSkeleton />}>
+        <SimilarProducts product={product} />
+      </Suspense>
+    </>
   );
 }
 

@@ -18,6 +18,7 @@ npm run dev
 - [x] **STEP 2. 상품 등록 / 목록 / 상세**
   - [x] 판매글 쓰기 · 목록 · 상세 · 수정 · 삭제 (CRUD)
   - [x] 사진 업로드 (여러 장, 최대 10장)
+  - [x] 상세 화면 아래 비슷한 물건 추천 · 가격 비교
 - [ ] STEP 3. 동네 인증
 - [ ] STEP 4. 1:1 채팅
 - [ ] STEP 5. 관심 목록(찜)
@@ -30,7 +31,7 @@ src/
 ├─ lib/
 │  ├─ auth.ts                   # getCurrentUser(): 현재 로그인 사용자 + 닉네임
 │  ├─ products.ts               # 판매글 타입·카테고리·가격 표시 (서버/브라우저 공용)
-│  ├─ product-data.ts           # 판매글 읽기: getProducts(), getProduct(id) (서버 전용)
+│  ├─ product-data.ts           # 판매글 읽기: getProducts(), getProduct(id), getSimilarProducts() (서버 전용)
 │  ├─ upload-image.ts           # 브라우저에서 사진 줄이기(WebP) + Storage 에 올리기
 │  └─ supabase/
 │     ├─ client.ts              # 브라우저용 Supabase 클라이언트
@@ -60,6 +61,7 @@ src/
          ├─ page.tsx            # 상세 /products/글id (내 글이면 수정·삭제 버튼)
          ├─ DeleteButton.tsx    # 확인창 띄우고 삭제
          ├─ ImageGallery.tsx    # 큰 사진 + 썸네일 넘겨보기
+         ├─ SimilarProducts.tsx # 비슷한 물건 추천 + 가격 비교
          ├─ not-found.tsx       # 없는 글일 때
          └─ edit/page.tsx       # 수정 /products/글id/edit (내 글만)
 supabase/migrations/            # DB 구조(SQL) 기록
@@ -84,6 +86,9 @@ supabase/migrations/            # DB 구조(SQL) 기록
    - 저장 경로는 `회원id/랜덤이름.webp`. Storage 정책이 "내 폴더"에만 올리고 지울 수 있게 막아요.
    - 판매글에는 사진 **경로 목록**(`images`)만 저장하고, 첫 번째가 대표 사진이에요.
    - 글을 수정하며 뺀 사진, 삭제한 글의 사진은 서버가 Storage 에서도 지워요.
+7. **비슷한 물건 추천** (상세 화면 아래)
+   - 판매중인 글 중에서 **같은 카테고리**를 먼저, 그다음 **가격대가 비슷한(1/3배~3배)** 글을 최대 4개 보여줘요.
+   - 카드마다 지금 보는 글과 비교해서 "3,000원 더 저렴해요"처럼 가격 차이를 알려줘요.
 
 ## DB (가계부와 같은 Supabase 프로젝트)
 

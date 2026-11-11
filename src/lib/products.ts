@@ -83,6 +83,20 @@ export type Product = {
   seller: { nickname: string } | null;
 };
 
+// 상세 화면 아래 "비슷한 물건" 추천에 쓰는 타입
+//   reason: 왜 추천됐는지 ("같은 카테고리" 또는 "비슷한 가격대")
+export type SimilarProduct = Product & { reason: "category" | "price" };
+
+// 가격 차이를 사람이 읽기 쉬운 말로: 지금 보는 물건(base)과 비교해서 다른 물건(other)이 얼마나 싼지/비싼지
+export function priceCompare(base: number, other: number) {
+  const diff = other - base;
+  if (diff === 0) return { text: base === 0 ? "똑같이 나눔" : "같은 가격", tone: "same" as const };
+  const amount = Math.abs(diff).toLocaleString("ko-KR");
+  return diff < 0
+    ? { text: `${amount}원 더 저렴해요`, tone: "cheaper" as const }
+    : { text: `${amount}원 더 비싸요`, tone: "pricier" as const };
+}
+
 export function isProductStatus(value: string): value is ProductStatus {
   return value in STATUS_LABELS;
 }
