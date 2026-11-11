@@ -61,6 +61,13 @@ async function UserMenu() {
         📍<span className="hidden max-w-24 truncate sm:inline">{user.neighborhood ?? "동네 인증"}</span>
       </Link>
       <Link
+        href="/chat"
+        aria-label="채팅"
+        className="rounded-full px-2.5 py-2 text-sm font-semibold text-ink/80 transition hover:bg-surface-2"
+      >
+        💬<span className="hidden sm:inline"> 채팅</span>
+      </Link>
+      <Link
         href="/products/new"
         className="hidden rounded-full bg-goguma px-4 py-2 text-sm font-semibold text-on-goguma transition hover:opacity-85 sm:block"
       >

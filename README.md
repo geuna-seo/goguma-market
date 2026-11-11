@@ -23,10 +23,12 @@ npm run dev
   - [x] 현재 위치(GPS) → 카카오 로컬 API 로 행정동 확인
   - [x] 동네 인증한 사람만 글쓰기, 글에 동네 표시
   - [x] 목록에서 "우리 동네" 물건만 보기
-- [ ] STEP 4. 1:1 채팅
+- [x] **STEP 4. 1:1 채팅**
+  - [x] 상세 화면에서 판매자에게 채팅하기 (물건·구매자마다 방 1개)
+  - [x] 채팅 목록 · 실시간 메시지 (Supabase Realtime)
 - [ ] STEP 5. 관심 목록(찜)
 
-## 폴더 구조 (STEP 1 ~ 3)
+## 폴더 구조 (STEP 1 ~ 4)
 
 ```
 src/
@@ -37,12 +39,13 @@ src/
 │  ├─ product-data.ts           # 판매글 읽기: getProducts(), getProduct(id), getSimilarProducts() (서버 전용)
 │  ├─ upload-image.ts           # 브라우저에서 사진 줄이기(WebP) + Storage 에 올리기
 │  ├─ kakao.ts                  # 카카오 로컬 API: 위도·경도 → 행정동 (서버 전용)
+│  ├─ chat-data.ts              # 채팅 읽기: 내 채팅 목록, 채팅방, 메시지 (서버 전용)
 │  └─ supabase/
 │     ├─ client.ts              # 브라우저용 Supabase 클라이언트
 │     ├─ server.ts              # 서버용 Supabase 클라이언트 (쿠키로 세션 읽기)
 │     └─ proxy.ts               # proxy.ts 에서 쓰는 세션 갱신 로직
 ├─ components/
-│  ├─ Header.tsx                # 로고 + 동네·글쓰기·로그인 메뉴
+│  ├─ Header.tsx                # 로고 + 동네·채팅·글쓰기·로그인 메뉴
 │  ├─ Logo.tsx
 │  └─ form.tsx                  # 입력칸, 선택칸, 긴 글 칸, 버튼, 에러 박스
 └─ app/
@@ -57,6 +60,12 @@ src/
    │  ├─ page.tsx
    │  ├─ actions.ts             # Server Action: verifyNeighborhood (좌표 → 동네 저장)
    │  └─ NeighborhoodVerifier.tsx # 위치 권한 묻고 인증 버튼
+   ├─ chat/
+   │  ├─ page.tsx               # 내 채팅 목록 /chat
+   │  ├─ actions.ts             # Server Actions: startChat, sendMessage
+   │  └─ [roomId]/
+   │     ├─ page.tsx            # 채팅방 /chat/방id (참여자만)
+   │     └─ ChatRoom.tsx        # 메시지 목록 + 입력칸 + 실시간 구독
    └─ products/
       ├─ layout.tsx             # 헤더 + 내용 틀
       ├─ page.tsx               # 목록 /products
@@ -103,6 +112,10 @@ supabase/migrations/            # DB 구조(SQL) 기록
    - 인증 시각은 DB 트리거가 기록하고, 글을 쓰면 그때의 판매자 동네가 글에 자동으로 복사돼요.
    - 동네 인증을 안 하면 글쓰기 화면 대신 안내가 나오고, DB의 RLS 정책도 글쓰기를 막아요.
    - 목록의 "📍 우리 동네" 탭(`?area=mine`)은 같은 구·동의 글만 보여줘요.
+9. **1:1 채팅** (STEP 4)
+   - 상세 화면 "채팅하기" → `startChat` 이 (물건 + 구매자) 방을 찾거나 만들고 → `/chat/방id` 로 이동해요.
+   - 메시지는 `sendMessage` 로 저장하고, 상대방 화면에는 **Supabase Realtime** 으로 바로 나타나요.
+   - RLS 로 채팅방의 판매자·구매자 두 사람만 방과 메시지를 볼 수 있어요. (Realtime 도 RLS 를 지켜요)
 
 ## DB (가계부와 같은 Supabase 프로젝트)
 
@@ -116,6 +129,8 @@ supabase/migrations/            # DB 구조(SQL) 기록
   (`supabase/migrations/003_market_product_images.sql`)
 - 동네: `market_profiles` 의 `region`·`neighborhood`·`neighborhood_verified_at`, 판매글의 `region`·`neighborhood`.
   (`supabase/migrations/004_market_neighborhood.sql`)
+- 채팅: `market_chat_rooms`(방), `market_chat_messages`(메시지). 두 사람만 읽고 쓸 수 있어요.
+  (`supabase/migrations/005_market_chat.sql`)
 
 ## 배포할 때 체크리스트 (나중에)
 

@@ -10,6 +10,8 @@ import { StatusBadge } from "../ProductCard";
 import { DeleteButton } from "./DeleteButton";
 import { ImageGallery } from "./ImageGallery";
 import { SimilarProducts, SimilarProductsSkeleton } from "./SimilarProducts";
+import { startChat } from "../../chat/actions";
+import { countChatRoomsForProduct } from "@/lib/chat-data";
 
 // 브라우저 탭 제목을 글 제목으로
 export async function generateMetadata({ params }: PageProps<"/products/[id]">): Promise<Metadata> {
@@ -86,15 +88,41 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[id]">, "para
             </p>
           </div>
 
-          {isMine && (
-            <div className="mt-auto flex gap-3 border-t border-line pt-5">
-              <Link
-                href={`/products/${product.id}/edit`}
-                className="grid h-13 flex-1 place-items-center rounded-2xl bg-goguma font-bold text-on-goguma shadow-lg shadow-goguma/25 transition hover:-translate-y-0.5"
-              >
-                수정하기
-              </Link>
-              <DeleteButton id={product.id} />
+          {isMine ? (
+            <div className="mt-auto space-y-3 border-t border-line pt-5">
+              <div className="flex gap-3">
+                <Link
+                  href={`/products/${product.id}/edit`}
+                  className="grid h-13 flex-1 place-items-center rounded-2xl bg-goguma font-bold text-on-goguma shadow-lg shadow-goguma/25 transition hover:-translate-y-0.5"
+                >
+                  수정하기
+                </Link>
+                <DeleteButton id={product.id} />
+              </div>
+              <Suspense fallback={null}>
+                <SellerChatLink productId={product.id} />
+              </Suspense>
+            </div>
+          ) : (
+            <div className="mt-auto border-t border-line pt-5">
+              {user ? (
+                // bind: startChat(productId) 에 이 글의 id 를 미리 넣은 Server Action
+                <form action={startChat.bind(null, product.id)}>
+                  <button
+                    type="submit"
+                    className="h-13 w-full rounded-2xl bg-goguma font-bold text-on-goguma shadow-lg shadow-goguma/25 transition hover:-translate-y-0.5"
+                  >
+                    💬 채팅하기
+                  </button>
+                </form>
+              ) : (
+                <Link
+                  href="/login"
+                  className="grid h-13 place-items-center rounded-2xl bg-goguma font-bold text-on-goguma shadow-lg shadow-goguma/25"
+                >
+                  로그인하고 채팅하기
+                </Link>
+              )}
             </div>
           )}
         </div>
@@ -122,3 +150,15 @@ function DetailSkeleton() {
   );
 }
 
+// 판매자에게만: 이 물건에 들어온 채팅 수 + 채팅 목록 링크
+async function SellerChatLink({ productId }: { productId: string }) {
+  const count = await countChatRoomsForProduct(productId);
+  return (
+    <Link
+      href="/chat"
+      className="grid h-12 place-items-center rounded-2xl bg-surface-2 text-sm font-bold transition hover:opacity-80"
+    >
+      💬 이 물건 채팅 {count}개 보기
+    </Link>
+  );
+}
