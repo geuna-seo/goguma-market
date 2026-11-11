@@ -20,6 +20,7 @@ npm run dev
   - [x] 판매글 쓰기 · 목록 · 상세 · 수정 · 삭제 (CRUD)
   - [x] 사진 업로드 (여러 장, 최대 10장)
   - [x] 상세 화면 아래 비슷한 물건 추천 · 가격 비교
+  - [x] 거래 방법 여러 개 고르기 (직거래 · 문고리 · 택배)
 - [x] **STEP 3. 동네 인증** — ⏸️ 지금은 꺼 두었어요 (`src/lib/features.ts` 의 `NEIGHBORHOOD_ENABLED`)
   - [x] 현재 위치(GPS) → 카카오 로컬 API 로 행정동 확인
   - [x] 동네 인증한 사람만 글쓰기, 글에 동네 표시
@@ -49,7 +50,7 @@ src/
 ├─ components/
 │  ├─ Header.tsx                # 로고 + 동네·채팅·글쓰기·로그인 메뉴
 │  ├─ Logo.tsx
-│  └─ form.tsx                  # 입력칸, 선택칸, 긴 글 칸, 버튼, 에러 박스
+│  └─ form.tsx                  # 입력칸, 선택칸, 긴 글 칸, 여러 개 고르기 칩, 버튼, 에러 박스
 └─ app/
    ├─ page.tsx                  # 홈
    ├─ (auth)/                   # 괄호 폴더는 URL 에 안 나타나요 → /login, /signup
@@ -99,6 +100,8 @@ supabase/migrations/            # DB 구조(SQL) 기록
    - 수정·삭제: `updateProduct` / `deleteProduct`. 화면에서 내 글에만 버튼을 보여주고,
      DB의 RLS 정책이 "내 글만" 바꿀 수 있게 한 번 더 막아요.
    - 가격 0원은 "나눔", 판매 상태는 판매중 · 예약중 · 거래완료 (수정 화면에서 바꿔요).
+   - 거래 방법은 직거래 · 문고리(비대면) · 택배 중 **여러 개**를 고를 수 있어요. 최소 1개는 골라야 해요.
+     DB에는 `trade_methods` 배열(`{"direct","delivery"}`)로 저장하고, 정해진 3가지 값만 들어가게 막아요.
 6. **사진 올리기** (STEP 2)
    - 사진을 고르면 브라우저가 긴 쪽 1600px · WebP 로 줄여서 **Storage 에 바로** 올려요.
      (Server Action 은 한 번에 보낼 수 있는 크기가 작아서, 큰 사진 여러 장은 서버를 거치지 않아요)
@@ -127,6 +130,7 @@ supabase/migrations/            # DB 구조(SQL) 기록
 - 모든 테이블에 RLS(행 단위 보안)가 켜져 있어요. 프로필은 누구나 읽을 수 있고, 본인만 수정할 수 있어요.
 - `market_products`(판매글): 누구나 읽을 수 있고, 쓰기·수정·삭제는 로그인한 본인 글만 가능해요.
   (`supabase/migrations/002_market_products.sql`)
+- 거래 방법: `market_products.trade_methods` (`supabase/migrations/007_market_trade_methods.sql`)
 - 사진: Storage 버킷 `market-product-images` (공개 읽기, 장당 5MB, 이미지 형식만).
   (`supabase/migrations/003_market_product_images.sql`)
 - 동네: `market_profiles` 의 `region`·`neighborhood`·`neighborhood_verified_at`, 판매글의 `region`·`neighborhood`.

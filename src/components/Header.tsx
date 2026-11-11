@@ -50,7 +50,7 @@ async function UserMenu() {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1 sm:gap-2">
       {/* 동네 인증 버튼: 인증했으면 동 이름, 아니면 "동네 인증" (좁은 화면에서는 📍만)
           기능 스위치(NEIGHBORHOOD_ENABLED)가 꺼져 있으면 숨겨요 */}
       {NEIGHBORHOOD_ENABLED && (
@@ -86,7 +86,7 @@ async function UserMenu() {
       <form action={logout}>
         <button
           type="submit"
-          className="rounded-full px-3 py-2 text-sm font-semibold text-muted hover:bg-surface-2 hover:text-ink"
+          className="rounded-full px-2 py-2 text-sm sm:px-3 font-semibold text-muted hover:bg-surface-2 hover:text-ink"
         >
           로그아웃
         </button>

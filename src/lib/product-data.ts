@@ -8,7 +8,7 @@ import type { Product, SimilarProduct } from "@/lib/products";
 // select 에 "seller:market_profiles(nickname)" 처럼 쓰면
 // seller_id 외래키를 따라가서 판매자 닉네임까지 한 번에 가져와요 (SQL 의 JOIN 과 비슷).
 const PRODUCT_COLUMNS =
-  "id, seller_id, title, description, category, price, status, images, region, neighborhood, created_at, updated_at, seller:market_profiles(nickname)";
+  "id, seller_id, title, description, category, price, status, trade_methods, images, region, neighborhood, created_at, updated_at, seller:market_profiles(nickname)";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

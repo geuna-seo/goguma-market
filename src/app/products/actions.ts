@@ -22,6 +22,7 @@ import {
   TITLE_MAX,
   isOwnImagePath,
   isProductStatus,
+  isTradeMethod,
 } from "@/lib/products";
 import { NEIGHBORHOOD_ENABLED } from "@/lib/features";
 
@@ -43,6 +44,10 @@ function parseProductForm(formData: FormData, userId: string) {
   };
   // 같은 name 이 여러 개면 getAll 로 배열을 받아요 (사진 경로들, 순서 그대로)
   const images = formData.getAll("images").map(String);
+  // 체크된 거래 방법들. 같은 값이 두 번 와도 한 번만 남기려고 Set 으로 걸러요.
+  const tradeMethods = [...new Set(formData.getAll("trade_methods").map(String))];
+  // 에러로 돌아갈 때 폼에 다시 채울 수 있게 쉼표로 이어서 values 에도 넣어요
+  const valuesWithTrade = { ...values, trade_methods: tradeMethods.join(",") };
 
   let error: string | undefined;
   const price = Number(values.price);
@@ -63,17 +68,22 @@ function parseProductForm(formData: FormData, userId: string) {
     error = `설명은 ${DESCRIPTION_MAX.toLocaleString()}자까지 쓸 수 있어요.`;
   } else if (!isProductStatus(values.status)) {
     error = "판매 상태를 다시 골라 주세요.";
+  } else if (tradeMethods.length === 0) {
+    error = "거래 방법을 하나 이상 골라 주세요.";
+  } else if (!tradeMethods.every(isTradeMethod)) {
+    error = "거래 방법을 다시 골라 주세요.";
   }
 
   return {
     error,
-    values,
+    values: valuesWithTrade,
     data: {
       title: values.title,
       category: values.category,
       price,
       description: values.description,
       images,
+      trade_methods: tradeMethods,
     },
   };
 }

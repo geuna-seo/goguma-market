@@ -44,6 +44,24 @@ export const STATUS_LABELS = {
 
 export type ProductStatus = keyof typeof STATUS_LABELS;
 
+// 거래 방법 (여러 개 고를 수 있어요). DB에는 영어 값(value), 화면에는 한국어(label)
+export const TRADE_METHODS = [
+  { value: "direct", label: "직거래", emoji: "🤝", desc: "만나서 주고받아요" },
+  { value: "doorstep", label: "문고리", emoji: "🚪", desc: "문 앞에 걸어 두고 비대면으로" },
+  { value: "delivery", label: "택배", emoji: "📦", desc: "택배로 보내요" },
+] as const;
+
+export type TradeMethod = (typeof TRADE_METHODS)[number]["value"];
+
+export function isTradeMethod(value: string): value is TradeMethod {
+  return TRADE_METHODS.some((m) => m.value === value);
+}
+
+// DB 값 목록 → 화면에 보여줄 정보 (정해진 순서대로: 직거래 → 문고리 → 택배)
+export function tradeMethodInfo(values: readonly string[]) {
+  return TRADE_METHODS.filter((m) => values.includes(m.value));
+}
+
 export const TITLE_MAX = 40;
 export const DESCRIPTION_MAX = 2000;
 export const PRICE_MAX = 100_000_000; // 1억원
@@ -75,6 +93,8 @@ export type Product = {
   category: string;
   price: number;
   status: ProductStatus;
+  // 거래 방법 목록 (예: ["direct", "delivery"]). 이 기능 전에 올라온 글은 빈 배열
+  trade_methods: TradeMethod[];
   // 사진 경로 목록. 첫 번째가 대표 사진 (없으면 빈 배열)
   images: string[];
   // 글을 쓸 때 판매자가 인증한 동네 (동네 인증 전에 쓴 글은 null)

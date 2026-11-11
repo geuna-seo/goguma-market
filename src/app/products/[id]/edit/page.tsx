@@ -48,6 +48,7 @@ async function EditProductForm({ params }: Pick<PageProps<"/products/[id]/edit">
         price: String(product.price),
         description: product.description,
         status: product.status,
+        trade_methods: product.trade_methods.join(","),
       }}
     />
   );

@@ -114,3 +114,44 @@ export function TextArea({ label, hint, id, ...props }: TextAreaProps) {
     </div>
   );
 }
+
+// 여러 개 고르는 칩(체크박스) 묶음. 같은 name 으로 여러 값이 폼에 담겨요 → 서버에서 formData.getAll(name)
+type ChoiceOption = { value: string; label: string; emoji?: string; desc?: string };
+
+type MultiChoiceProps = {
+  label: string;
+  name: string;
+  options: readonly ChoiceOption[];
+  defaultValues?: readonly string[];
+  hint?: string;
+};
+
+export function MultiChoice({ label, name, options, defaultValues = [], hint }: MultiChoiceProps) {
+  return (
+    // fieldset + legend: 여러 입력칸을 하나의 질문으로 묶는 HTML 태그예요 (화면 읽기 프로그램도 잘 읽어요)
+    <fieldset>
+      <legend className="mb-1.5 text-sm font-semibold">{label}</legend>
+      <div className="flex flex-wrap gap-2">
+        {options.map((o) => (
+          // has-checked: 안쪽 체크박스가 체크되면 칩 색이 바뀌어요 (Tailwind 의 has-* 기능)
+          <label
+            key={o.value}
+            title={o.desc}
+            className="flex cursor-pointer items-center gap-1.5 rounded-full bg-surface px-4 py-2.5 text-sm font-semibold ring-1 ring-line transition select-none hover:bg-surface-2 has-checked:bg-goguma has-checked:text-on-goguma has-checked:ring-goguma has-focus-visible:ring-2 has-focus-visible:ring-goguma"
+          >
+            <input
+              type="checkbox"
+              name={name}
+              value={o.value}
+              defaultChecked={defaultValues.includes(o.value)}
+              className="sr-only"
+            />
+            {o.emoji && <span aria-hidden="true">{o.emoji}</span>}
+            {o.label}
+          </label>
+        ))}
+      </div>
+      {hint && <p className="mt-1.5 text-xs text-muted">{hint}</p>}
+    </fieldset>
+  );
+}

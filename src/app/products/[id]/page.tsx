@@ -5,7 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getProduct } from "@/lib/product-data";
-import { formatPrice, timeAgo } from "@/lib/products";
+import { formatPrice, timeAgo, tradeMethodInfo } from "@/lib/products";
 import { NEIGHBORHOOD_ENABLED } from "@/lib/features";
 import { StatusBadge } from "../ProductCard";
 import { DeleteButton } from "./DeleteButton";
@@ -83,6 +83,25 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[id]">, "para
               {edited && " · 수정됨"}
             </p>
             <p className="mt-4 text-3xl font-extrabold text-goguma">{formatPrice(product.price)}</p>
+
+            {/* 거래 방법 (이 기능 전에 올라온 글은 비어 있어서 안 보여요) */}
+            {product.trade_methods.length > 0 && (
+              <div className="mt-4">
+                <p className="text-xs font-semibold text-muted">거래 방법</p>
+                <ul className="mt-1.5 flex flex-wrap gap-2">
+                  {tradeMethodInfo(product.trade_methods).map((m) => (
+                    <li
+                      key={m.value}
+                      title={m.desc}
+                      className="flex items-center gap-1.5 rounded-full bg-flesh-soft px-3 py-1.5 text-sm font-bold text-goguma-deep"
+                    >
+                      <span aria-hidden="true">{m.emoji}</span>
+                      {m.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* whitespace-pre-wrap: 사용자가 친 줄바꿈을 그대로 보여줘요 */}
             <p className="mt-6 whitespace-pre-wrap leading-relaxed">

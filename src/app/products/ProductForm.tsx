@@ -5,8 +5,8 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import type { ProductFormState } from "./actions";
-import { CATEGORIES, DESCRIPTION_MAX, STATUS_LABELS, TITLE_MAX } from "@/lib/products";
-import { ErrorBox, Field, Select, SubmitButton, TextArea } from "@/components/form";
+import { CATEGORIES, DESCRIPTION_MAX, STATUS_LABELS, TITLE_MAX, TRADE_METHODS } from "@/lib/products";
+import { ErrorBox, Field, MultiChoice, Select, SubmitButton, TextArea } from "@/components/form";
 import { ImagePicker } from "./ImagePicker";
 
 const CATEGORY_OPTIONS = CATEGORIES.map((c) => ({ value: c, label: c }));
@@ -38,6 +38,8 @@ export function ProductForm({
   const [uploading, setUploading] = useState(false);
   // 에러로 돌아왔으면 방금 입력한 값, 아니면 처음 값
   const v = state.values ?? initialValues;
+  // 거래 방법은 여러 개라 "direct,delivery" 처럼 쉼표로 이어서 주고받아요. 처음 쓰는 글은 직거래를 골라 둬요.
+  const tradeMethods = (v.trade_methods ?? "direct").split(",").filter(Boolean);
   // 💡 select 에 key 를 주는 이유:
   //   Server Action 이 끝나면 React 가 폼을 "처음 값"으로 되돌려요(reset).
   //   input 은 바뀐 defaultValue 로 돌아가지만, select 는 처음 그려질 때 값으로만 돌아가요.
@@ -81,6 +83,16 @@ export function ProductForm({
           required
         />
       </div>
+
+      {/* key: select 처럼, 에러로 돌아왔을 때 방금 고른 값으로 다시 그리려고 줘요 */}
+      <MultiChoice
+        key={`trade-${tradeMethods.join(",")}`}
+        label="거래 방법 (여러 개 선택 가능)"
+        name="trade_methods"
+        options={TRADE_METHODS}
+        defaultValues={tradeMethods}
+        hint="문고리: 문 앞에 걸어 두고 비대면으로 주고받는 방법이에요."
+      />
 
       {showStatus && (
         <Select

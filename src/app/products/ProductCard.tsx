@@ -7,6 +7,7 @@ import {
   formatPrice,
   productImageUrl,
   timeAgo,
+  tradeMethodInfo,
   type Product,
 } from "@/lib/products";
 
@@ -61,6 +62,15 @@ export function ProductCard({ product, children, eager }: Props) {
           {product.status !== "selling" && <StatusBadge status={product.status} />}
           <p className="font-extrabold text-goguma">{formatPrice(product.price)}</p>
         </div>
+        {product.trade_methods.length > 0 && (
+          <ul className="mt-1.5 flex flex-wrap gap-1" aria-label="거래 방법">
+            {tradeMethodInfo(product.trade_methods).map((m) => (
+              <li key={m.value} className="rounded-md bg-surface-2 px-1.5 py-0.5 text-[11px] font-semibold text-muted">
+                {m.emoji} {m.label}
+              </li>
+            ))}
+          </ul>
+        )}
         <p className="mt-2 truncate text-xs text-muted">{product.seller?.nickname ?? "알 수 없음"}</p>
         {children}
       </div>
