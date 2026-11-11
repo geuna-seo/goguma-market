@@ -1,4 +1,4 @@
-// 로그인/회원가입 폼에서 같이 쓰는 작은 UI 조각들
+// 폼에서 같이 쓰는 작은 UI 조각들 (로그인·회원가입·판매글)
 "use client";
 
 import { useState } from "react";
@@ -60,5 +60,57 @@ export function ErrorBox({ message }: { message?: string }) {
     <p role="alert" className="rounded-2xl bg-danger-soft px-4 py-3 text-sm font-medium text-danger">
       {message}
     </p>
+  );
+}
+
+// 공통 입력칸 모양 (input · select · textarea 가 같은 느낌이 나도록)
+const BOX = "w-full rounded-2xl bg-surface px-4 text-[15px] ring-1 ring-line outline-none transition placeholder:text-muted/70 focus:ring-2 focus:ring-goguma";
+
+type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
+  label: string;
+  options: readonly { value: string; label: string }[];
+  placeholder?: string;
+};
+
+export function Select({ label, id, options, placeholder, ...props }: SelectProps) {
+  return (
+    <div>
+      <label htmlFor={id} className="mb-1.5 block text-sm font-semibold">
+        {label}
+      </label>
+      <div className="relative">
+        <select id={id} className={`${BOX} h-13 appearance-none pr-10`} {...props}>
+          {placeholder && (
+            <option value="" disabled>
+              {placeholder}
+            </option>
+          )}
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        {/* appearance-none 으로 기본 화살표를 지웠으니 직접 그려요 */}
+        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-muted">▼</span>
+      </div>
+    </div>
+  );
+}
+
+type TextAreaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label: string;
+  hint?: string;
+};
+
+export function TextArea({ label, hint, id, ...props }: TextAreaProps) {
+  return (
+    <div>
+      <label htmlFor={id} className="mb-1.5 block text-sm font-semibold">
+        {label}
+      </label>
+      <textarea id={id} className={`${BOX} min-h-40 resize-y py-3 leading-relaxed`} {...props} />
+      {hint && <p className="mt-1.5 text-xs text-muted">{hint}</p>}
+    </div>
   );
 }

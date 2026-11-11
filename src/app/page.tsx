@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { getCurrentUser } from "@/lib/auth";
 
 const COMING_SOON = [
-  { emoji: "📸", title: "내 물건 팔기", desc: "사진 몇 장이면 판매글 완성", step: "STEP 2" },
+  { emoji: "📸", title: "사진 올리기", desc: "판매글에 사진을 붙여요", step: "STEP 2" },
   { emoji: "📍", title: "동네 인증", desc: "가까운 이웃끼리만 거래해요", step: "STEP 3" },
   { emoji: "💬", title: "1:1 채팅", desc: "판매자와 바로 대화하기", step: "STEP 4" },
   { emoji: "🧡", title: "관심 목록", desc: "찜한 물건 모아보기", step: "STEP 5" },
@@ -70,7 +70,7 @@ export default function Home() {
         <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
           <div className="mb-5 flex items-end justify-between">
             <h2 className="text-2xl font-extrabold tracking-tight">곧 구워지는 중 🔥</h2>
-            <span className="text-sm text-muted">STEP 1 · 회원 기능 완료</span>
+            <span className="text-sm text-muted">STEP 2 · 판매글 쓰기 완료</span>
           </div>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             {COMING_SOON.map((f) => (
@@ -101,13 +101,27 @@ async function HeroAction() {
 
   if (user) {
     return (
-      <div className="mt-8 inline-flex items-center gap-4 rounded-3xl bg-surface p-2 pr-6 ring-1 ring-line">
+      <div className="mt-8 inline-flex flex-wrap items-center gap-4 rounded-3xl bg-surface p-2 pr-4 ring-1 ring-line">
         <span className="grid size-12 place-items-center rounded-2xl bg-flesh text-2xl">👋</span>
         <p className="font-semibold">
           반가워요, <span className="text-goguma">{user.nickname}</span>님!
           <br />
-          <span className="text-sm font-normal text-muted">판매 기능은 다음 단계에서 열려요.</span>
+          <span className="text-sm font-normal text-muted">오늘은 어떤 물건을 팔아볼까요?</span>
         </p>
+        <div className="flex gap-2">
+          <Link
+            href="/products/new"
+            className="rounded-2xl bg-goguma px-4 py-3 text-sm font-bold text-on-goguma shadow-lg shadow-goguma/25 transition hover:-translate-y-0.5"
+          >
+            내 물건 팔기
+          </Link>
+          <Link
+            href="/products"
+            className="rounded-2xl bg-surface-2 px-4 py-3 text-sm font-bold transition hover:opacity-80"
+          >
+            구경하기
+          </Link>
+        </div>
       </div>
     );
   }
@@ -125,6 +139,12 @@ async function HeroAction() {
         className="rounded-2xl bg-surface px-6 py-4 font-bold ring-1 ring-line transition hover:bg-surface-2"
       >
         이미 회원이에요
+      </Link>
+      <Link
+        href="/products"
+        className="rounded-2xl px-6 py-4 font-bold text-muted transition hover:text-ink"
+      >
+        매물 구경하기
       </Link>
     </div>
   );
