@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/* ───────── 고구마마켓 디자인 토큰 ─────────
+   고구마 껍질(자주) + 고구마 속살(노랑) + 크림 배경 */
+:root {
+  --bg: #fbf7f1;
+  --surface: #ffffff;
+  --surface-2: #f4eee5;
+  --ink: #1d1720;
+  --muted: #8a8190;
+  --line: #ece4d8;
+  --goguma: #8e2f6e; /* 껍질 */
+  --goguma-deep: #5c1a48;
+  --flesh: #ffc24b; /* 속살 */
+  --flesh-soft: #fff1cc;
+  --on-goguma: #ffffff;
+  --danger: #e5484d;
+  --danger-soft: #fdecec;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131015;
+    --surface: #1c181f;
+    --surface-2: #26212a;
+    --ink: #f4eff6;
+    --muted: #9d94a3;
+    --line: #2f2934;
+    --goguma: #d266ad;
+    --goguma-deep: #f0a3d3;
+    --flesh: #ffc24b;
+    --flesh-soft: #3a2d14;
+    --on-goguma: #1d1720;
+    --danger: #ff6b70;
+    --danger-soft: #3a1c1e;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-goguma: var(--goguma);
+  --color-goguma-deep: var(--goguma-deep);
+  --color-flesh: var(--flesh);
+  --color-flesh-soft: var(--flesh-soft);
+  --color-on-goguma: var(--on-goguma);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system,
+    BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+
+/* 살짝 떠다니는 스티커 애니메이션 */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--r, 0deg));
+  }
+  50% {
+    transform: translateY(-8px) rotate(var(--r, 0deg));
+  }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float {
+    animation: none;
+  }
+}
