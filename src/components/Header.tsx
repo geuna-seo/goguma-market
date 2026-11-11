@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { getCurrentUser } from "@/lib/auth";
+import { NEIGHBORHOOD_ENABLED } from "@/lib/features";
 import { logout } from "@/app/(auth)/actions";
 
 export function Header() {
@@ -50,16 +51,19 @@ async function UserMenu() {
 
   return (
     <div className="flex items-center gap-2">
-      {/* 동네 인증 버튼: 인증했으면 동 이름, 아니면 "동네 인증" (좁은 화면에서는 📍만) */}
-      <Link
-        href="/neighborhood"
-        title={user.neighborhood ? `${user.region} ${user.neighborhood}` : "동네 인증하기"}
-        className={`flex items-center gap-1 rounded-full px-2.5 py-2 text-sm font-semibold transition hover:bg-surface-2 ${
-          user.neighborhood ? "text-ink/80" : "text-goguma"
-        }`}
-      >
-        📍<span className="hidden max-w-24 truncate sm:inline">{user.neighborhood ?? "동네 인증"}</span>
-      </Link>
+      {/* 동네 인증 버튼: 인증했으면 동 이름, 아니면 "동네 인증" (좁은 화면에서는 📍만)
+          기능 스위치(NEIGHBORHOOD_ENABLED)가 꺼져 있으면 숨겨요 */}
+      {NEIGHBORHOOD_ENABLED && (
+        <Link
+          href="/neighborhood"
+          title={user.neighborhood ? `${user.region} ${user.neighborhood}` : "동네 인증하기"}
+          className={`flex items-center gap-1 rounded-full px-2.5 py-2 text-sm font-semibold transition hover:bg-surface-2 ${
+            user.neighborhood ? "text-ink/80" : "text-goguma"
+          }`}
+        >
+          📍<span className="hidden max-w-24 truncate sm:inline">{user.neighborhood ?? "동네 인증"}</span>
+        </Link>
+      )}
       <Link
         href="/chat"
         aria-label="채팅"

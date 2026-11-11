@@ -23,6 +23,7 @@ import {
   isOwnImagePath,
   isProductStatus,
 } from "@/lib/products";
+import { NEIGHBORHOOD_ENABLED } from "@/lib/features";
 
 export type ProductFormState = {
   error?: string;
@@ -111,9 +112,14 @@ export async function createProduct(
     .single();
 
   if (dbError || !created) {
-    // 42501 = 권한 없음. 우리 DB에서는 "동네 인증을 안 해서 RLS 정책에 막힌 경우"예요.
+    // 42501 = 권한 없음 (RLS 정책에 막힘). 동네 인증을 켜 두었다면 대부분 "동네 인증 안 함"이에요.
     if (dbError?.code === "42501") {
-      return { error: "동네 인증을 먼저 해 주세요. (헤더의 📍 버튼)", values };
+      return {
+        error: NEIGHBORHOOD_ENABLED
+          ? "동네 인증을 먼저 해 주세요. (헤더의 📍 버튼)"
+          : "글을 쓸 권한이 없어요. 다시 로그인해 주세요.",
+        values,
+      };
     }
     return { error: "글을 올리지 못했어요. 잠시 후 다시 시도해 주세요.", values };
   }

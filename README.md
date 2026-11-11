@@ -10,7 +10,8 @@ npm run dev
 ```
 
 브라우저에서 http://localhost:3000 을 열어주세요.
-처음 받는 경우 `.env.example` 을 복사해 `.env.local` 을 만들고 Supabase 값과 카카오 REST API 키를 채워야 해요.
+처음 받는 경우 `.env.example` 을 복사해 `.env.local` 을 만들고 Supabase 값을 채워야 해요.
+(카카오 REST API 키는 동네 인증을 다시 켤 때만 필요해요)
 
 ## 진행 단계
 
@@ -19,7 +20,7 @@ npm run dev
   - [x] 판매글 쓰기 · 목록 · 상세 · 수정 · 삭제 (CRUD)
   - [x] 사진 업로드 (여러 장, 최대 10장)
   - [x] 상세 화면 아래 비슷한 물건 추천 · 가격 비교
-- [x] **STEP 3. 동네 인증**
+- [x] **STEP 3. 동네 인증** — ⏸️ 지금은 꺼 두었어요 (`src/lib/features.ts` 의 `NEIGHBORHOOD_ENABLED`)
   - [x] 현재 위치(GPS) → 카카오 로컬 API 로 행정동 확인
   - [x] 동네 인증한 사람만 글쓰기, 글에 동네 표시
   - [x] 목록에서 "우리 동네" 물건만 보기
@@ -38,6 +39,7 @@ src/
 │  ├─ products.ts               # 판매글 타입·카테고리·가격 표시 (서버/브라우저 공용)
 │  ├─ product-data.ts           # 판매글 읽기: getProducts(), getProduct(id), getSimilarProducts() (서버 전용)
 │  ├─ upload-image.ts           # 브라우저에서 사진 줄이기(WebP) + Storage 에 올리기
+│  ├─ features.ts               # 기능 스위치 (동네 인증 켜기/끄기)
 │  ├─ kakao.ts                  # 카카오 로컬 API: 위도·경도 → 행정동 (서버 전용)
 │  ├─ chat-data.ts              # 채팅 읽기: 내 채팅 목록, 채팅방, 메시지 (서버 전용)
 │  └─ supabase/
@@ -106,7 +108,7 @@ supabase/migrations/            # DB 구조(SQL) 기록
 7. **비슷한 물건 추천** (상세 화면 아래)
    - 판매중인 글 중에서 **같은 카테고리**를 먼저, 그다음 **가격대가 비슷한(1/3배~3배)** 글을 최대 4개 보여줘요.
    - 카드마다 지금 보는 글과 비교해서 "3,000원 더 저렴해요"처럼 가격 차이를 알려줘요.
-8. **동네 인증** (STEP 3)
+8. **동네 인증** (STEP 3) — ⏸️ 지금은 기능 스위치로 꺼 둔 상태예요. 꺼져 있으면 누구나 글을 쓸 수 있고 📍 버튼·우리 동네 탭이 숨겨져요.
    - 브라우저 위치(GPS) → `verifyNeighborhood` 서버 액션 → 카카오 로컬 API 로 **행정동**("역삼1동")을 찾아 프로필에 저장해요.
    - 정확한 좌표는 저장하지 않아요. 정확도가 5km 보다 나쁘거나 대한민국 밖이면 인증하지 않아요.
    - 인증 시각은 DB 트리거가 기록하고, 글을 쓰면 그때의 판매자 동네가 글에 자동으로 복사돼요.
@@ -129,6 +131,8 @@ supabase/migrations/            # DB 구조(SQL) 기록
   (`supabase/migrations/003_market_product_images.sql`)
 - 동네: `market_profiles` 의 `region`·`neighborhood`·`neighborhood_verified_at`, 판매글의 `region`·`neighborhood`.
   (`supabase/migrations/004_market_neighborhood.sql`)
+  동네 인증을 끄면서 "인증한 사람만 글쓰기" 정책은 다시 "내 이름으로만 글쓰기"로 되돌렸어요.
+  (`supabase/migrations/006_market_products_insert_without_neighborhood.sql`)
 - 채팅: `market_chat_rooms`(방), `market_chat_messages`(메시지). 두 사람만 읽고 쓸 수 있어요.
   (`supabase/migrations/005_market_chat.sql`)
 

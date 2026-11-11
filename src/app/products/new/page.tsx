@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { NEIGHBORHOOD_ENABLED } from "@/lib/features";
 import { createProduct } from "../actions";
 import { ProductForm } from "../ProductForm";
 
@@ -29,8 +30,8 @@ async function NewProductForm() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  // 동네 인증을 안 했으면 글쓰기 대신 안내를 보여줘요 (DB의 RLS 정책도 한 번 더 막아줘요)
-  if (!user.neighborhood) {
+  // 동네 인증을 안 했으면 글쓰기 대신 안내를 보여줘요 (기능 스위치가 켜져 있을 때만)
+  if (NEIGHBORHOOD_ENABLED && !user.neighborhood) {
     return (
       <div className="rounded-3xl bg-surface px-6 py-14 text-center ring-1 ring-line">
         <p className="text-5xl">📍</p>

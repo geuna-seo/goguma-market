@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getProduct } from "@/lib/product-data";
 import { formatPrice, timeAgo } from "@/lib/products";
+import { NEIGHBORHOOD_ENABLED } from "@/lib/features";
 import { StatusBadge } from "../ProductCard";
 import { DeleteButton } from "./DeleteButton";
 import { ImageGallery } from "./ImageGallery";
@@ -57,16 +58,17 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[id]">, "para
             </span>
             <div>
               <p className="font-bold">{product.seller?.nickname ?? "알 수 없음"}</p>
-              <p className="text-xs text-muted">
+              <p className="flex flex-wrap gap-x-1 text-xs text-muted">
                 {product.neighborhood ? (
-                  <>
+                  <span>
                     📍 {product.region} {product.neighborhood}
                     <span className="ml-1 font-semibold text-goguma">· 동네 인증</span>
-                  </>
+                  </span>
                 ) : (
-                  "동네 정보 없음"
+                  // 동네 인증 기능이 꺼져 있으면 "동네 정보 없음"도 굳이 보여주지 않아요
+                  NEIGHBORHOOD_ENABLED && <span>동네 정보 없음</span>
                 )}
-                {isMine && <span className="ml-1 font-semibold text-goguma">· 내가 쓴 글</span>}
+                {isMine && <span className="font-semibold text-goguma">내가 쓴 글</span>}
               </p>
             </div>
           </div>

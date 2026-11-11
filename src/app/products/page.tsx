@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getProducts } from "@/lib/product-data";
+import { NEIGHBORHOOD_ENABLED } from "@/lib/features";
 import { ProductCard } from "./ProductCard";
 
 export const metadata: Metadata = { title: "중고거래" };
@@ -36,7 +37,8 @@ export default function ProductsPage({ searchParams }: PageProps<"/products">) {
 
 async function ProductList({ searchParams }: Pick<PageProps<"/products">, "searchParams">) {
   const { area } = await searchParams;
-  const onlyMine = area === "mine";
+  // 동네 인증 기능이 꺼져 있으면 ?area=mine 이 와도 전체를 보여줘요
+  const onlyMine = NEIGHBORHOOD_ENABLED && area === "mine";
   const user = await getCurrentUser();
   const myArea =
     user?.region && user.neighborhood ? { region: user.region, neighborhood: user.neighborhood } : null;
@@ -61,7 +63,7 @@ async function ProductList({ searchParams }: Pick<PageProps<"/products">, "searc
 
   return (
     <>
-      <AreaTabs onlyMine={onlyMine} myNeighborhood={myArea?.neighborhood ?? null} />
+      {NEIGHBORHOOD_ENABLED && <AreaTabs onlyMine={onlyMine} myNeighborhood={myArea?.neighborhood ?? null} />}
       {products.length === 0 ? (
         onlyMine ? (
           <Empty
