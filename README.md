@@ -15,9 +15,9 @@ npm run dev
 ## 진행 단계
 
 - [x] **STEP 1. 회원가입 · 로그인 · 로그아웃**
-- [ ] **STEP 2. 상품 등록 / 목록 / 상세**
+- [x] **STEP 2. 상품 등록 / 목록 / 상세**
   - [x] 판매글 쓰기 · 목록 · 상세 · 수정 · 삭제 (CRUD)
-  - [ ] 사진 업로드
+  - [x] 사진 업로드 (여러 장, 최대 10장)
 - [ ] STEP 3. 동네 인증
 - [ ] STEP 4. 1:1 채팅
 - [ ] STEP 5. 관심 목록(찜)
@@ -31,6 +31,7 @@ src/
 │  ├─ auth.ts                   # getCurrentUser(): 현재 로그인 사용자 + 닉네임
 │  ├─ products.ts               # 판매글 타입·카테고리·가격 표시 (서버/브라우저 공용)
 │  ├─ product-data.ts           # 판매글 읽기: getProducts(), getProduct(id) (서버 전용)
+│  ├─ upload-image.ts           # 브라우저에서 사진 줄이기(WebP) + Storage 에 올리기
 │  └─ supabase/
 │     ├─ client.ts              # 브라우저용 Supabase 클라이언트
 │     ├─ server.ts              # 서버용 Supabase 클라이언트 (쿠키로 세션 읽기)
@@ -52,11 +53,13 @@ src/
       ├─ page.tsx               # 목록 /products
       ├─ actions.ts             # Server Actions: createProduct, updateProduct, deleteProduct
       ├─ ProductForm.tsx        # 쓰기·수정 공용 폼
+      ├─ ImagePicker.tsx        # 폼의 사진 칸 (여러 장 고르기·빼기·대표 사진)
       ├─ ProductCard.tsx        # 목록 카드 + 판매 상태 뱃지
       ├─ new/page.tsx           # 글쓰기 /products/new (로그인 필요)
       └─ [id]/
          ├─ page.tsx            # 상세 /products/글id (내 글이면 수정·삭제 버튼)
          ├─ DeleteButton.tsx    # 확인창 띄우고 삭제
+         ├─ ImageGallery.tsx    # 큰 사진 + 썸네일 넘겨보기
          ├─ not-found.tsx       # 없는 글일 때
          └─ edit/page.tsx       # 수정 /products/글id/edit (내 글만)
 supabase/migrations/            # DB 구조(SQL) 기록
@@ -75,6 +78,12 @@ supabase/migrations/            # DB 구조(SQL) 기록
    - 수정·삭제: `updateProduct` / `deleteProduct`. 화면에서 내 글에만 버튼을 보여주고,
      DB의 RLS 정책이 "내 글만" 바꿀 수 있게 한 번 더 막아요.
    - 가격 0원은 "나눔", 판매 상태는 판매중 · 예약중 · 거래완료 (수정 화면에서 바꿔요).
+6. **사진 올리기** (STEP 2)
+   - 사진을 고르면 브라우저가 긴 쪽 1600px · WebP 로 줄여서 **Storage 에 바로** 올려요.
+     (Server Action 은 한 번에 보낼 수 있는 크기가 작아서, 큰 사진 여러 장은 서버를 거치지 않아요)
+   - 저장 경로는 `회원id/랜덤이름.webp`. Storage 정책이 "내 폴더"에만 올리고 지울 수 있게 막아요.
+   - 판매글에는 사진 **경로 목록**(`images`)만 저장하고, 첫 번째가 대표 사진이에요.
+   - 글을 수정하며 뺀 사진, 삭제한 글의 사진은 서버가 Storage 에서도 지워요.
 
 ## DB (가계부와 같은 Supabase 프로젝트)
 
@@ -84,6 +93,8 @@ supabase/migrations/            # DB 구조(SQL) 기록
 - 모든 테이블에 RLS(행 단위 보안)가 켜져 있어요. 프로필은 누구나 읽을 수 있고, 본인만 수정할 수 있어요.
 - `market_products`(판매글): 누구나 읽을 수 있고, 쓰기·수정·삭제는 로그인한 본인 글만 가능해요.
   (`supabase/migrations/002_market_products.sql`)
+- 사진: Storage 버킷 `market-product-images` (공개 읽기, 장당 5MB, 이미지 형식만).
+  (`supabase/migrations/003_market_product_images.sql`)
 
 ## 배포할 때 체크리스트 (나중에)
 

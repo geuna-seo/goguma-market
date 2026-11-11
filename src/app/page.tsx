@@ -4,7 +4,6 @@ import { Header } from "@/components/Header";
 import { getCurrentUser } from "@/lib/auth";
 
 const COMING_SOON = [
-  { emoji: "📸", title: "사진 올리기", desc: "판매글에 사진을 붙여요", step: "STEP 2" },
   { emoji: "📍", title: "동네 인증", desc: "가까운 이웃끼리만 거래해요", step: "STEP 3" },
   { emoji: "💬", title: "1:1 채팅", desc: "판매자와 바로 대화하기", step: "STEP 4" },
   { emoji: "🧡", title: "관심 목록", desc: "찜한 물건 모아보기", step: "STEP 5" },
@@ -70,9 +69,9 @@ export default function Home() {
         <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
           <div className="mb-5 flex items-end justify-between">
             <h2 className="text-2xl font-extrabold tracking-tight">곧 구워지는 중 🔥</h2>
-            <span className="text-sm text-muted">STEP 2 · 판매글 쓰기 완료</span>
+            <span className="text-sm text-muted">STEP 2 · 상품 기능 완료</span>
           </div>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-3">
             {COMING_SOON.map((f) => (
               <div
                 key={f.title}

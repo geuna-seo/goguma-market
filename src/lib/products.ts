@@ -16,7 +16,7 @@ export const CATEGORIES = [
   "기타",
 ] as const;
 
-// 사진 기능이 생기기 전까지 카드에 대신 보여줄 이모지
+// 사진이 없는 글의 카드에 대신 보여줄 이모지
 const CATEGORY_EMOJI: Record<string, string> = {
   디지털기기: "📱",
   "가구/인테리어": "🛋️",
@@ -48,6 +48,25 @@ export const TITLE_MAX = 40;
 export const DESCRIPTION_MAX = 2000;
 export const PRICE_MAX = 100_000_000; // 1억원
 
+// ───── 사진 ─────
+// 사진 파일은 Supabase Storage 의 이 버킷에 "회원id/랜덤이름.webp" 경로로 저장해요.
+export const IMAGE_BUCKET = "market-product-images";
+export const IMAGES_MAX = 10;
+
+// 저장된 경로 → 브라우저에서 볼 수 있는 공개 주소
+export function productImageUrl(path: string) {
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${IMAGE_BUCKET}/${path}`;
+}
+
+// "내 폴더에 있고, 우리가 만든 이름 모양(랜덤id.webp)인 파일"인지 확인
+// → 남의 사진 경로를 몰래 끼워 넣지 못하게 서버에서 검사할 때 써요.
+const IMAGE_NAME_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.webp$/;
+
+export function isOwnImagePath(path: string, userId: string) {
+  const [folder, name, ...rest] = path.split("/");
+  return folder === userId && rest.length === 0 && IMAGE_NAME_RE.test(name ?? "");
+}
+
 export type Product = {
   id: string;
   seller_id: string;
@@ -56,6 +75,8 @@ export type Product = {
   category: string;
   price: number;
   status: ProductStatus;
+  // 사진 경로 목록. 첫 번째가 대표 사진 (없으면 빈 배열)
+  images: string[];
   created_at: string;
   updated_at: string;
   // market_profiles 를 함께 가져온 값 (판매자 닉네임)

@@ -36,7 +36,9 @@ async function EditProductForm({ params }: Pick<PageProps<"/products/[id]/edit">
 
   return (
     <ProductForm
+      userId={user.id}
       action={updateThisProduct}
+      initialImages={product.images}
       submitLabel="수정 완료"
       cancelHref={`/products/${product.id}`}
       showStatus

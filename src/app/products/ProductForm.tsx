@@ -2,27 +2,40 @@
 // 판매글 쓰기·수정에 같이 쓰는 폼
 // 어떤 Server Action 을 부를지는 props(action)로 받아서, 한 폼을 두 화면에서 재사용해요.
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import type { ProductFormState } from "./actions";
 import { CATEGORIES, DESCRIPTION_MAX, STATUS_LABELS, TITLE_MAX } from "@/lib/products";
 import { ErrorBox, Field, Select, SubmitButton, TextArea } from "@/components/form";
+import { ImagePicker } from "./ImagePicker";
 
 const CATEGORY_OPTIONS = CATEGORIES.map((c) => ({ value: c, label: c }));
 const STATUS_OPTIONS = Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label }));
 
 type Props = {
+  // 사진을 "회원id/..." 폴더에 올리기 위해 필요해요
+  userId: string;
   action: (prev: ProductFormState, formData: FormData) => Promise<ProductFormState>;
   // 수정할 때 처음 채워둘 값
   initialValues?: Record<string, string>;
+  initialImages?: string[];
   submitLabel: string;
   cancelHref: string;
   // 수정 화면에서만 판매 상태(판매중/예약중/거래완료)를 고를 수 있어요
   showStatus?: boolean;
 };
 
-export function ProductForm({ action, initialValues = {}, submitLabel, cancelHref, showStatus }: Props) {
+export function ProductForm({
+  userId,
+  action,
+  initialValues = {},
+  initialImages,
+  submitLabel,
+  cancelHref,
+  showStatus,
+}: Props) {
   const [state, formAction, pending] = useActionState<ProductFormState, FormData>(action, {});
+  const [uploading, setUploading] = useState(false);
   // 에러로 돌아왔으면 방금 입력한 값, 아니면 처음 값
   const v = state.values ?? initialValues;
   // 💡 select 에 key 를 주는 이유:
@@ -33,6 +46,8 @@ export function ProductForm({ action, initialValues = {}, submitLabel, cancelHre
   return (
     <form action={formAction} className="space-y-5">
       <ErrorBox message={state.error} />
+
+      <ImagePicker userId={userId} initialPaths={initialImages} onUploadingChange={setUploading} />
 
       <Field
         id="title"
@@ -95,7 +110,10 @@ export function ProductForm({ action, initialValues = {}, submitLabel, cancelHre
         >
           취소
         </Link>
-        <SubmitButton pending={pending}>{pending ? "저장 중…" : submitLabel}</SubmitButton>
+        {/* 사진이 올라가는 중에는 저장하지 못하게 막아요 */}
+        <SubmitButton pending={pending || uploading}>
+          {uploading ? "사진 올리는 중…" : pending ? "저장 중…" : submitLabel}
+        </SubmitButton>
       </div>
     </form>
   );

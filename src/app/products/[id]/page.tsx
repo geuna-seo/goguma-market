@@ -5,9 +5,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getProduct } from "@/lib/product-data";
-import { categoryEmoji, formatPrice, timeAgo } from "@/lib/products";
+import { formatPrice, timeAgo } from "@/lib/products";
 import { StatusBadge } from "../ProductCard";
 import { DeleteButton } from "./DeleteButton";
+import { ImageGallery } from "./ImageGallery";
 
 // 브라우저 탭 제목을 글 제목으로
 export async function generateMetadata({ params }: PageProps<"/products/[id]">): Promise<Metadata> {
@@ -42,13 +43,7 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[id]">, "para
 
   return (
     <article className="mt-4 grid gap-8 md:grid-cols-2">
-      {/* 사진 자리 (사진 업로드는 다음 단계) */}
-      <div
-        className="grid aspect-square place-items-center rounded-[2rem] bg-gradient-to-br from-flesh-soft to-surface-2 text-[8rem] ring-1 ring-line"
-        aria-hidden="true"
-      >
-        {categoryEmoji(product.category)}
-      </div>
+      <ImageGallery images={product.images} title={product.title} category={product.category} />
 
       <div className="flex flex-col">
         {/* 판매자 */}

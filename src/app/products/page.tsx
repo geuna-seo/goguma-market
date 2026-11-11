@@ -45,7 +45,7 @@ async function ProductList() {
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {products.map((p) => (
         <ProductCard key={p.id} product={p} />
       ))}
@@ -55,7 +55,7 @@ async function ProductList() {
 
 function ListSkeleton() {
   return (
-    <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 8 }, (_, i) => (
         <div key={i} className="h-36 animate-pulse rounded-3xl bg-surface-2 sm:h-72" />
       ))}
