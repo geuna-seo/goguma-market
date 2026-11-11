@@ -9,6 +9,9 @@ export type CurrentUser = {
   id: string;
   email: string;
   nickname: string;
+  // 동네 인증 정보 (인증 전이면 null)
+  region: string | null; // "서울특별시 강남구"
+  neighborhood: string | null; // "역삼1동"
 };
 
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
@@ -26,7 +29,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
 
   const { data: profile } = await supabase
     .from("market_profiles")
-    .select("nickname")
+    .select("nickname, region, neighborhood")
     .eq("id", claims.sub)
     .maybeSingle();
 
@@ -37,5 +40,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
       profile?.nickname ??
       (claims.user_metadata?.nickname as string | undefined) ??
       "고구마",
+    region: profile?.region ?? null,
+    neighborhood: profile?.neighborhood ?? null,
   };
 });

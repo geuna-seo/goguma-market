@@ -1,6 +1,7 @@
 // 판매글 쓰기 (/products/new) — 로그인한 사람만
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { createProduct } from "../actions";
@@ -27,6 +28,23 @@ export default function NewProductPage() {
 async function NewProductForm() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+
+  // 동네 인증을 안 했으면 글쓰기 대신 안내를 보여줘요 (DB의 RLS 정책도 한 번 더 막아줘요)
+  if (!user.neighborhood) {
+    return (
+      <div className="rounded-3xl bg-surface px-6 py-14 text-center ring-1 ring-line">
+        <p className="text-5xl">📍</p>
+        <p className="mt-4 text-xl font-extrabold">동네 인증이 필요해요</p>
+        <p className="mt-1 text-sm text-muted">이웃끼리 믿고 거래하려고, 동네를 인증한 분만 글을 쓸 수 있어요.</p>
+        <Link
+          href="/neighborhood"
+          className="mt-6 inline-block rounded-2xl bg-goguma px-6 py-3 font-bold text-on-goguma shadow-lg shadow-goguma/25"
+        >
+          동네 인증하러 가기
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <ProductForm userId={user.id} action={createProduct} submitLabel="판매글 올리기" cancelHref="/products" />

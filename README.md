@@ -10,7 +10,7 @@ npm run dev
 ```
 
 브라우저에서 http://localhost:3000 을 열어주세요.
-처음 받는 경우 `.env.example` 을 복사해 `.env.local` 을 만들고 Supabase 값을 채워야 해요.
+처음 받는 경우 `.env.example` 을 복사해 `.env.local` 을 만들고 Supabase 값과 카카오 REST API 키를 채워야 해요.
 
 ## 진행 단계
 
@@ -19,11 +19,14 @@ npm run dev
   - [x] 판매글 쓰기 · 목록 · 상세 · 수정 · 삭제 (CRUD)
   - [x] 사진 업로드 (여러 장, 최대 10장)
   - [x] 상세 화면 아래 비슷한 물건 추천 · 가격 비교
-- [ ] STEP 3. 동네 인증
+- [x] **STEP 3. 동네 인증**
+  - [x] 현재 위치(GPS) → 카카오 로컬 API 로 행정동 확인
+  - [x] 동네 인증한 사람만 글쓰기, 글에 동네 표시
+  - [x] 목록에서 "우리 동네" 물건만 보기
 - [ ] STEP 4. 1:1 채팅
 - [ ] STEP 5. 관심 목록(찜)
 
-## 폴더 구조 (STEP 1 ~ 2)
+## 폴더 구조 (STEP 1 ~ 3)
 
 ```
 src/
@@ -33,12 +36,13 @@ src/
 │  ├─ products.ts               # 판매글 타입·카테고리·가격 표시 (서버/브라우저 공용)
 │  ├─ product-data.ts           # 판매글 읽기: getProducts(), getProduct(id), getSimilarProducts() (서버 전용)
 │  ├─ upload-image.ts           # 브라우저에서 사진 줄이기(WebP) + Storage 에 올리기
+│  ├─ kakao.ts                  # 카카오 로컬 API: 위도·경도 → 행정동 (서버 전용)
 │  └─ supabase/
 │     ├─ client.ts              # 브라우저용 Supabase 클라이언트
 │     ├─ server.ts              # 서버용 Supabase 클라이언트 (쿠키로 세션 읽기)
 │     └─ proxy.ts               # proxy.ts 에서 쓰는 세션 갱신 로직
 ├─ components/
-│  ├─ Header.tsx                # 로고 + 로그인/로그아웃 메뉴
+│  ├─ Header.tsx                # 로고 + 동네·글쓰기·로그인 메뉴
 │  ├─ Logo.tsx
 │  └─ form.tsx                  # 입력칸, 선택칸, 긴 글 칸, 버튼, 에러 박스
 └─ app/
@@ -49,6 +53,10 @@ src/
    │  ├─ login/
    │  └─ signup/
    ├─ auth/callback/route.ts    # 이메일 인증 링크를 눌렀을 때 돌아오는 곳
+   ├─ neighborhood/             # 동네 인증 /neighborhood
+   │  ├─ page.tsx
+   │  ├─ actions.ts             # Server Action: verifyNeighborhood (좌표 → 동네 저장)
+   │  └─ NeighborhoodVerifier.tsx # 위치 권한 묻고 인증 버튼
    └─ products/
       ├─ layout.tsx             # 헤더 + 내용 틀
       ├─ page.tsx               # 목록 /products
@@ -89,6 +97,12 @@ supabase/migrations/            # DB 구조(SQL) 기록
 7. **비슷한 물건 추천** (상세 화면 아래)
    - 판매중인 글 중에서 **같은 카테고리**를 먼저, 그다음 **가격대가 비슷한(1/3배~3배)** 글을 최대 4개 보여줘요.
    - 카드마다 지금 보는 글과 비교해서 "3,000원 더 저렴해요"처럼 가격 차이를 알려줘요.
+8. **동네 인증** (STEP 3)
+   - 브라우저 위치(GPS) → `verifyNeighborhood` 서버 액션 → 카카오 로컬 API 로 **행정동**("역삼1동")을 찾아 프로필에 저장해요.
+   - 정확한 좌표는 저장하지 않아요. 정확도가 5km 보다 나쁘거나 대한민국 밖이면 인증하지 않아요.
+   - 인증 시각은 DB 트리거가 기록하고, 글을 쓰면 그때의 판매자 동네가 글에 자동으로 복사돼요.
+   - 동네 인증을 안 하면 글쓰기 화면 대신 안내가 나오고, DB의 RLS 정책도 글쓰기를 막아요.
+   - 목록의 "📍 우리 동네" 탭(`?area=mine`)은 같은 구·동의 글만 보여줘요.
 
 ## DB (가계부와 같은 Supabase 프로젝트)
 
@@ -100,9 +114,12 @@ supabase/migrations/            # DB 구조(SQL) 기록
   (`supabase/migrations/002_market_products.sql`)
 - 사진: Storage 버킷 `market-product-images` (공개 읽기, 장당 5MB, 이미지 형식만).
   (`supabase/migrations/003_market_product_images.sql`)
+- 동네: `market_profiles` 의 `region`·`neighborhood`·`neighborhood_verified_at`, 판매글의 `region`·`neighborhood`.
+  (`supabase/migrations/004_market_neighborhood.sql`)
 
 ## 배포할 때 체크리스트 (나중에)
 
-- 배포 사이트(예: Vercel)에 환경 변수 2개(`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) 등록
+- 배포 사이트(예: Vercel)에 환경 변수 3개(`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `KAKAO_REST_API_KEY`) 등록
+- 카카오 개발자 콘솔 → 내 애플리케이션 → **카카오맵 사용 설정 ON** (안 켜면 로컬 API 가 403)
 - Supabase 대시보드 → Authentication → URL Configuration → **Redirect URLs** 에
   `https://배포주소/auth/callback` 추가 (이메일 인증을 켤 경우 필요)

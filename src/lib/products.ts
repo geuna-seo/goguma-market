@@ -77,6 +77,9 @@ export type Product = {
   status: ProductStatus;
   // 사진 경로 목록. 첫 번째가 대표 사진 (없으면 빈 배열)
   images: string[];
+  // 글을 쓸 때 판매자가 인증한 동네 (동네 인증 전에 쓴 글은 null)
+  region: string | null;
+  neighborhood: string | null;
   created_at: string;
   updated_at: string;
   // market_profiles 를 함께 가져온 값 (판매자 닉네임)

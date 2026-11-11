@@ -8,22 +8,26 @@ import type { Product, SimilarProduct } from "@/lib/products";
 // select 에 "seller:market_profiles(nickname)" 처럼 쓰면
 // seller_id 외래키를 따라가서 판매자 닉네임까지 한 번에 가져와요 (SQL 의 JOIN 과 비슷).
 const PRODUCT_COLUMNS =
-  "id, seller_id, title, description, category, price, status, images, created_at, updated_at, seller:market_profiles(nickname)";
+  "id, seller_id, title, description, category, price, status, images, region, neighborhood, created_at, updated_at, seller:market_profiles(nickname)";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// 최신 글부터 목록 가져오기
-export async function getProducts(): Promise<Product[]> {
+// 최신 글부터 목록 가져오기. area 를 주면 그 동네 글만 가져와요.
+export async function getProducts(area?: { region: string; neighborhood: string }): Promise<Product[]> {
   // 요청마다 새로 읽어야 하는 데이터라서 미리 렌더링하지 않도록 표시해요 (src/lib/auth.ts 참고)
   await connection();
 
   const supabase = await createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("market_products")
     .select(PRODUCT_COLUMNS)
     .order("created_at", { ascending: false })
     .limit(100);
 
+  // 같은 이름의 동이 다른 구에도 있을 수 있어서(예: 신사동) region 까지 같이 비교해요
+  if (area) query = query.eq("region", area.region).eq("neighborhood", area.neighborhood);
+
+  const { data, error } = await query;
   if (error) throw new Error(`판매글 목록을 불러오지 못했어요: ${error.message}`);
   return (data ?? []) as unknown as Product[];
 }

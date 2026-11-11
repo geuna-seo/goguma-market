@@ -111,6 +111,10 @@ export async function createProduct(
     .single();
 
   if (dbError || !created) {
+    // 42501 = 권한 없음. 우리 DB에서는 "동네 인증을 안 해서 RLS 정책에 막힌 경우"예요.
+    if (dbError?.code === "42501") {
+      return { error: "동네 인증을 먼저 해 주세요. (헤더의 📍 버튼)", values };
+    }
     return { error: "글을 올리지 못했어요. 잠시 후 다시 시도해 주세요.", values };
   }
 

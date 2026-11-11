@@ -50,6 +50,16 @@ async function UserMenu() {
 
   return (
     <div className="flex items-center gap-2">
+      {/* 동네 인증 버튼: 인증했으면 동 이름, 아니면 "동네 인증" (좁은 화면에서는 📍만) */}
+      <Link
+        href="/neighborhood"
+        title={user.neighborhood ? `${user.region} ${user.neighborhood}` : "동네 인증하기"}
+        className={`flex items-center gap-1 rounded-full px-2.5 py-2 text-sm font-semibold transition hover:bg-surface-2 ${
+          user.neighborhood ? "text-ink/80" : "text-goguma"
+        }`}
+      >
+        📍<span className="hidden max-w-24 truncate sm:inline">{user.neighborhood ?? "동네 인증"}</span>
+      </Link>
       <Link
         href="/products/new"
         className="hidden rounded-full bg-goguma px-4 py-2 text-sm font-semibold text-on-goguma transition hover:opacity-85 sm:block"

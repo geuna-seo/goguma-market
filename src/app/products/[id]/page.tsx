@@ -55,7 +55,17 @@ async function ProductDetail({ params }: Pick<PageProps<"/products/[id]">, "para
             </span>
             <div>
               <p className="font-bold">{product.seller?.nickname ?? "알 수 없음"}</p>
-              {isMine && <p className="text-xs font-semibold text-goguma">내가 쓴 글</p>}
+              <p className="text-xs text-muted">
+                {product.neighborhood ? (
+                  <>
+                    📍 {product.region} {product.neighborhood}
+                    <span className="ml-1 font-semibold text-goguma">· 동네 인증</span>
+                  </>
+                ) : (
+                  "동네 정보 없음"
+                )}
+                {isMine && <span className="ml-1 font-semibold text-goguma">· 내가 쓴 글</span>}
+              </p>
             </div>
           </div>
 
@@ -111,3 +121,4 @@ function DetailSkeleton() {
     </div>
   );
 }
+

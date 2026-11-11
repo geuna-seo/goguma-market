@@ -14,9 +14,11 @@ type Props = {
   product: Product;
   // 카드 아래쪽에 덧붙일 내용 (예: 추천 이유, 가격 비교)
   children?: React.ReactNode;
+  // 화면 맨 위에 바로 보이는 카드면 true → 사진을 미루지 않고 바로 불러와요 (첫 화면이 빨라져요)
+  eager?: boolean;
 };
 
-export function ProductCard({ product, children }: Props) {
+export function ProductCard({ product, children, eager }: Props) {
   const done = product.status === "sold";
   const cover = product.images[0];
 
@@ -38,6 +40,7 @@ export function ProductCard({ product, children }: Props) {
             fill
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 112px"
             className="object-cover transition group-hover:scale-105"
+            loading={eager ? "eager" : "lazy"}
           />
         ) : (
           <span aria-hidden="true">{categoryEmoji(product.category)}</span>
@@ -51,8 +54,8 @@ export function ProductCard({ product, children }: Props) {
 
       <div className="min-w-0 flex-1 py-1 sm:py-0">
         <p className="truncate font-semibold">{product.title}</p>
-        <p className="mt-0.5 text-xs text-muted">
-          {product.category} · {timeAgo(product.created_at)}
+        <p className="mt-0.5 truncate text-xs text-muted">
+          {[product.neighborhood, product.category, timeAgo(product.created_at)].filter(Boolean).join(" · ")}
         </p>
         <div className="mt-2 flex items-center gap-1.5">
           {product.status !== "selling" && <StatusBadge status={product.status} />}
